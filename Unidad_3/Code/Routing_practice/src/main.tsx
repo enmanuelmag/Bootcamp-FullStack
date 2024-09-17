@@ -2,14 +2,13 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 // Importar BrowserRouter y RouterProvider
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
-import { loadUserByIndex, loadUsers } from './api/user';
+import { loadUsers } from './api/user';
 
 import Layout from './components/Layout';
 
 import Home from './pages/home';
 
 import Users from './pages/users';
-import UserView from './pages/users/view';
 import ErrorUser from './pages/users/error';
 
 import './index.css';
@@ -23,13 +22,6 @@ const router = createBrowserRouter([
       {
         index: true,
         element: <Home />,
-      },
-      {
-        path: 'users/view/:index',
-        loader: ({ params }) => {
-          return loadUserByIndex(Number(params.index));
-        },
-        element: <UserView />,
       },
       {
         path: 'users/:state?',

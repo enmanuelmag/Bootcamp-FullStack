@@ -8,6 +8,8 @@ import UserProfile from '../../components/UserProfile';
 function Users() {
   const data = useLoaderData() as UserLoaderData;
 
+  console.log(data);
+
   return (
     <React.Suspense
       fallback={
@@ -17,8 +19,8 @@ function Users() {
       <Await resolve={data.users}>
         {(users: UserLoaderData['users']) => (
           <div className="flex flex-row gap-x-[2rem]">
-            {users.map((user, index) => (
-              <UserProfile key={user.name} {...user} index={index} />
+            {users.map((user) => (
+              <UserProfile key={user.name} {...user} />
             ))}
           </div>
         )}

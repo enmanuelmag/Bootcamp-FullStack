@@ -2,11 +2,10 @@ type UserProfileProps = {
   name: string;
   url: string;
   verified?: boolean;
-  index?: number;
 };
 
 const UserProfile = (props: UserProfileProps) => {
-  const { name, url, verified, index } = props;
+  const { name, url, verified } = props;
 
   return (
     <div className="shadow-lg p-[1rem] border border-gray-200 rounded-lg text-center">
@@ -25,20 +24,11 @@ const UserProfile = (props: UserProfileProps) => {
       </p>
 
       <button
-        className="bg-blue-500 text-white px-4 py-2 rounded mt-2 w-full"
+        className="bg-blue-500 text-white px-4 py-2 rounded mt-2"
         onClick={copyData}
       >
         Copiar datos
       </button>
-
-      {index !== undefined && index >= 0 && (
-        <a
-          className="bg-cyan-500 text-white px-4 py-2 rounded mt-2 block"
-          href={`/users/view/${index}`}
-        >
-          Ver perfil
-        </a>
-      )}
     </div>
   );
 

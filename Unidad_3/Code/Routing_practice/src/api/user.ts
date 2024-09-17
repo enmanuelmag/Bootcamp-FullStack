@@ -8,11 +8,6 @@ const users = [
     verified: true,
   },
   {
-    name: 'Kent C. Dodds',
-    url: 'https://avatar.iran.liara.run/public/boy',
-    verified: true,
-  },
-  {
     name: 'Sophie Alpert',
     url: 'https://avatar.iran.liara.run/public/girl',
     verified: false,
@@ -34,15 +29,5 @@ export const loadUsers = async (state?: string) => {
     users: sleep().then(() =>
       users.filter((user) => (state === 'verified' ? user.verified : true))
     ),
-  });
-};
-
-export type UserByIndexLoaderData = {
-  user: User;
-};
-
-export const loadUserByIndex = async (index: number) => {
-  return defer({
-    user: sleep().then(() => users[index]),
   });
 };
