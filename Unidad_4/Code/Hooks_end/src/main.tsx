@@ -2,7 +2,8 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 // Importar BrowserRouter y RouterProvider
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
-import { loadUserByIndex, loadUsers } from './api/user';
+
+import DataRepo from '@api/datasource';
 
 import Layout from './components/Layout';
 
@@ -28,22 +29,21 @@ const router = createBrowserRouter([
       {
         path: 'users/view/:index',
         loader: ({ params }) => {
-          return loadUserByIndex(Number(params.index));
+          return DataRepo.loadUserByIndex(Number(params.index));
         },
         element: <UserView />,
       },
       {
         path: 'users/form/:index?',
         loader: ({ params }) => {
-          return loadUserByIndex(Number(params.index));
+          return DataRepo.loadUserByIndex(Number(params.index));
         },
         element: <UserForm />,
       },
       {
         path: 'users/:state?',
         loader: ({ params }) => {
-          console.log('Params from users/:state?', params);
-          return loadUsers(params.state);
+          return DataRepo.loadUsers(params.state);
         },
         element: <Users />,
         errorElement: <ErrorUser />,

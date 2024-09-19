@@ -5,6 +5,13 @@ const Home = () => {
 
       <div className="flex flex-col text-center gap-y-[1rem]">
         <a
+          className="bg-violet-500 hover:bg-violet-700 text-white font-bold py-2 px-4 rounded"
+          href="/users/form"
+        >
+          Crear usuario
+        </a>
+
+        <a
           className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
           href="/users"
         >
@@ -16,13 +23,6 @@ const Home = () => {
           href="/users/verified"
         >
           Ver usuarios verificados
-        </a>
-
-        <a
-          className="bg-violet-500 hover:bg-violet-700 text-white font-bold py-2 px-4 rounded"
-          href="/users/form"
-        >
-          Crear usuario
         </a>
       </div>
     </div>
