@@ -17,6 +17,13 @@ const Home = () => {
         >
           Ver usuarios verificados
         </a>
+
+        <a
+          className="bg-violet-500 hover:bg-violet-700 text-white font-bold py-2 px-4 rounded"
+          href="/users/form"
+        >
+          Crear usuario
+        </a>
       </div>
     </div>
   );

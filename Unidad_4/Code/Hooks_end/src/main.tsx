@@ -10,6 +10,7 @@ import Home from './pages/home';
 
 import Users from './pages/users';
 import UserView from './pages/users/view';
+import UserForm from './pages/users/form';
 import ErrorUser from './pages/users/error';
 
 import './index.css';
@@ -30,6 +31,13 @@ const router = createBrowserRouter([
           return loadUserByIndex(Number(params.index));
         },
         element: <UserView />,
+      },
+      {
+        path: 'users/form/:index?',
+        loader: ({ params }) => {
+          return loadUserByIndex(Number(params.index));
+        },
+        element: <UserForm />,
       },
       {
         path: 'users/:state?',
