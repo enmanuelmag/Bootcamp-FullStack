@@ -1,3 +1,5 @@
+import React from 'react';
+
 type InputProps = {
   label: string;
   value: string;
@@ -6,12 +8,13 @@ type InputProps = {
   onChange: (value: string) => void;
 };
 
-const Input = (props: InputProps) => {
+const Input = React.forwardRef<HTMLInputElement, InputProps>((props, ref) => {
   const { label, value, error, onChange, className } = props;
   return (
     <div className={className}>
       <label className="block text-sm font-medium text-gray-700">{label}</label>
       <input
+        ref={ref}
         type="text"
         value={value}
         onChange={(e) => onChange(e.target.value)}
@@ -20,6 +23,6 @@ const Input = (props: InputProps) => {
       {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
     </div>
   );
-};
+});
 
 export default Input;

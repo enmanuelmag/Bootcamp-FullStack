@@ -39,6 +39,14 @@ const UserProfile = (props: UserProfileProps) => {
           Ver perfil
         </a>
       )}
+      {index !== undefined && index >= 0 && (
+        <a
+          className="bg-orange-500 text-white px-4 py-2 rounded mt-2 block"
+          href={`/users/form/${index}`}
+        >
+          Modificar perfil
+        </a>
+      )}
     </div>
   );
 

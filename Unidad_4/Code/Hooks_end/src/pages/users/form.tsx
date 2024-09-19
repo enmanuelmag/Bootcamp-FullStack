@@ -3,16 +3,19 @@ import DataRepo from '@api/datasource';
 import SwitchInput from '@components/Form/Check';
 import Input from '@components/Form/Input';
 import NumberInput from '@components/Form/Number';
-import { useNavigate, useParams } from 'react-router-dom';
-import { UserCreate } from '@customTypes/user';
-
-type Action = {
-  key: keyof UserCreate;
-  value: string | boolean | number;
-};
+import { useLoaderData, useNavigate, useParams } from 'react-router-dom';
+import { UserByIndexLoaderData, UserCreate } from '@customTypes/user';
+import Verified from '@components/Form/Verified';
 
 type Params = {
   index: string;
+};
+
+const INITIAL_STATE: UserCreate = {
+  name: '',
+  age: 25,
+  city: '',
+  verified: false,
 };
 
 const UserForm = () => {
@@ -20,16 +23,46 @@ const UserForm = () => {
 
   const navigate = useNavigate();
 
+  const inputRef = React.useRef<HTMLInputElement>(null);
+
+  const data = useLoaderData() as UserByIndexLoaderData;
+
   const [mode] = React.useState(index ? 'edit' : 'create');
 
   const [loading, setLoading] = React.useState(false);
 
-  const [state, dispatch] = React.useReducer(handleChange, {
-    name: '',
-    age: 25,
-    city: '',
-    verified: false,
-  });
+  const [state, setState] = React.useState<UserCreate>(INITIAL_STATE);
+
+  // Load user data after component is mounted
+  React.useLayoutEffect(() => {
+    if (mode === 'create' || !data.user) return;
+
+    const { name, age, city, verified } = data.user;
+
+    setState({
+      name,
+      age,
+      city,
+      verified: Boolean(verified),
+    });
+    // eslint-disable-next-line
+  }, []);
+
+  React.useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+
+    return () => {
+      console.log('Unmounting');
+      setState(INITIAL_STATE);
+    };
+  }, []);
+
+  const VerifiedMemo = React.useMemo(
+    () => <Verified verified={state.verified} />,
+    [state.verified]
+  );
 
   return (
     <div className="flex flex-col gap-4 w-[40rem]">
@@ -42,13 +75,13 @@ const UserForm = () => {
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
             viewBox="0 0 24 24"
-            stroke-width="1.5"
+            strokeWidth="1.5"
             stroke="currentColor"
             className="size-6"
           >
             <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
+              strokeLinecap="round"
+              strokeLinejoin="round"
               d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18"
             />
           </svg>
@@ -74,26 +107,29 @@ const UserForm = () => {
         <Input
           label="Name"
           value={state.name}
-          onChange={(value) => dispatch({ key: 'name', value })}
+          onChange={handleChange.bind(null, 'name')}
         />
 
         <NumberInput
           label="Age"
           value={state.age}
-          onChange={(value) => dispatch({ key: 'age', value })}
+          onChange={handleChange.bind(null, 'age')}
         />
 
         <Input
+          ref={inputRef}
           label="City"
           value={state.city}
-          onChange={(value) => dispatch({ key: 'city', value })}
+          onChange={handleChange.bind(null, 'city')}
         />
 
         <SwitchInput
           label="Verified"
           value={Boolean(state.verified)}
-          onChange={(value) => dispatch({ key: 'verified', value })}
+          onChange={handleChange.bind(null, 'verified')}
         />
+
+        {VerifiedMemo}
 
         <button
           className="px-4 py-2 text-white bg-blue-500 rounded-md hover:bg-blue-700"
@@ -105,11 +141,14 @@ const UserForm = () => {
     </div>
   );
 
-  function handleChange(state: UserCreate, action: Action): UserCreate {
-    return {
-      ...state,
-      [action.key]: action.value,
-    };
+  function handleChange(
+    key: keyof UserCreate,
+    value: string | boolean | number
+  ) {
+    setState((prev) => ({
+      ...prev,
+      [key]: value,
+    }));
   }
 };
 

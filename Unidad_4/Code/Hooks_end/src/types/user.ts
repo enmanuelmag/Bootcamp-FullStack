@@ -4,7 +4,7 @@ export const UserSchema = z.object({
   name: z.string(),
   city: z.string(),
   age: z.number(),
-  verified: z.boolean().optional(),
+  verified: z.boolean(),
   url: z.string(),
 });
 

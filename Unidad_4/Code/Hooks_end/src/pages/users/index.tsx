@@ -25,7 +25,7 @@ function Users() {
                   : `Hay ${users.length} usuarios`}
               </p>
             </div>
-            <div className="flex flex-row gap-x-[2rem] mt-[2rem]">
+            <div className="flex flex-row justify-center gap-x-[2rem] mt-[2rem]">
               {users.map((user, index) => (
                 <UserProfile key={user.name} {...user} index={index} />
               ))}
