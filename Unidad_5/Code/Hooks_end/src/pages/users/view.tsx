@@ -1,9 +1,9 @@
 import React from 'react';
 import { Await, useLoaderData } from 'react-router-dom';
 
-import { UserByIndexLoaderData } from '../../api/user';
+import { UserByIndexLoaderData } from '@customTypes/user';
 
-import UserProfile from '../../components/UserProfile';
+import UserProfile from '@components/UserProfile';
 
 const UserView = () => {
   const data = useLoaderData() as UserByIndexLoaderData;
