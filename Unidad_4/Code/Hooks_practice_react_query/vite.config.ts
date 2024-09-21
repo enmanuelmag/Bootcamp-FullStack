@@ -12,6 +12,7 @@ export default defineConfig({
       '@api': '/src/api',
       '@customTypes': '/src/types',
       '@utils': '/src/utils',
+      '@constants': '/src/constants',
     },
   },
   server: {

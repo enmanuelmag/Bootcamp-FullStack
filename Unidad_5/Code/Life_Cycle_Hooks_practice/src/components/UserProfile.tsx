@@ -79,7 +79,7 @@ const UserProfile = (props: UserProfileProps) => {
       )}
       {index !== undefined && index >= 0 && (
         <button
-          className="bg-red-500 text-white px-4 py-2 rounded mt-2 block hover:bg-red-600 w-full"
+          className="bg-red-500 text-white px-4 py-2 rounded mt-2 block hover:bg-red-600"
           onClick={() => userDeleteMutation.mutate(index)}
         >
           Eliminar perfil
