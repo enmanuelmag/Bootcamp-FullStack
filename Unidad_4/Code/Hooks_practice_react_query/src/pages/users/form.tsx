@@ -1,14 +1,12 @@
 import React from 'react';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import { useNavigate, useParams } from 'react-router-dom';
 
-import { UserByIndexLoaderData, UserCreate } from '@customTypes/user';
+import { UserCreate } from '@customTypes/user';
 
 import DataRepo from '@api/datasource';
 
-import { QKeys } from '@constants/query';
-
-import { isLoadingMutation, isLoadingOrRefetchQuery } from '@utils/query';
+import { isLoadingMutation } from '@utils/query';
 
 import Input from '@components/Form/Input';
 import Verified from '@components/Form/Verified';
@@ -37,23 +35,6 @@ const UserForm = () => {
 
   const [state, setState] = React.useState<UserCreate>(INITIAL_STATE);
 
-  const userQuery = useQuery<
-    UserByIndexLoaderData,
-    Error,
-    UserByIndexLoaderData,
-    [string, number]
-  >({
-    enabled: Boolean(index),
-    queryKey: [QKeys.GET_USER_BY_INDEX, Number(index)],
-    queryFn: async ({ queryKey }) => {
-      return await DataRepo.loadUserByIndex(queryKey[1]);
-    },
-  });
-
-  const { data } = userQuery;
-
-  const isLoading = isLoadingOrRefetchQuery(userQuery);
-
   const userCreateMutation = useMutation<void, Error, UserCreate>({
     mutationFn: async (user) => {
       return await DataRepo.saveUser(user);
@@ -70,32 +51,6 @@ const UserForm = () => {
   });
 
   const isSaving = isLoadingMutation(userCreateMutation);
-
-  // Load user data after component is mounted
-  React.useLayoutEffect(() => {
-    if (mode === 'create' || !data?.user || isLoading) return;
-
-    const { name, age, city, verified } = data.user;
-
-    setState({
-      name,
-      age,
-      city,
-      verified: Boolean(verified),
-    });
-    // eslint-disable-next-line
-  }, []);
-
-  React.useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.focus();
-    }
-
-    return () => {
-      console.log('Unmounting');
-      setState(INITIAL_STATE);
-    };
-  }, []);
 
   const VerifiedMemo = React.useMemo(
     () => <Verified verified={state.verified} />,
