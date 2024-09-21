@@ -20,10 +20,6 @@ class DataRepoImpl {
   async saveUser(user: UserCreate): Promise<void> {
     return await this.data.saveUser(user);
   }
-
-  async deleteUser(index: number): Promise<void> {
-    return await this.data.deleteUser(index);
-  }
 }
 
 export default DataRepoImpl;

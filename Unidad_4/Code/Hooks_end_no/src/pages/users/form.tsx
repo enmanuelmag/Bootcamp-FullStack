@@ -1,19 +1,11 @@
 import React from 'react';
-import { useMutation, useQuery } from '@tanstack/react-query';
-import { useNavigate, useParams } from 'react-router-dom';
-
-import { UserByIndexLoaderData, UserCreate } from '@customTypes/user';
-
 import DataRepo from '@api/datasource';
-
-import { QKeys } from '@constants/query';
-
-import { isLoadingMutation, isLoadingOrRefetchQuery } from '@utils/query';
-
-import Input from '@components/Form/Input';
-import Verified from '@components/Form/Verified';
 import SwitchInput from '@components/Form/Check';
+import Input from '@components/Form/Input';
 import NumberInput from '@components/Form/Number';
+import { useLoaderData, useNavigate, useParams } from 'react-router-dom';
+import { UserByIndexLoaderData, UserCreate } from '@customTypes/user';
+import Verified from '@components/Form/Verified';
 
 type Params = {
   index: string;
@@ -33,47 +25,17 @@ const UserForm = () => {
 
   const inputRef = React.useRef<HTMLInputElement>(null);
 
+  const data = useLoaderData() as UserByIndexLoaderData;
+
   const [mode] = React.useState(index ? 'edit' : 'create');
+
+  const [loading, setLoading] = React.useState(false);
 
   const [state, setState] = React.useState<UserCreate>(INITIAL_STATE);
 
-  const userQuery = useQuery<
-    UserByIndexLoaderData,
-    Error,
-    UserByIndexLoaderData,
-    [string, number]
-  >({
-    enabled: Boolean(index),
-    queryKey: [QKeys.GET_USER_BY_INDEX, Number(index)],
-    queryFn: async ({ queryKey }) => {
-      return await DataRepo.loadUserByIndex(queryKey[1]);
-    },
-  });
-
-  const { data } = userQuery;
-
-  const isLoading = isLoadingOrRefetchQuery(userQuery);
-
-  const userCreateMutation = useMutation<void, Error, UserCreate>({
-    mutationFn: async (user) => {
-      return await DataRepo.saveUser(user);
-    },
-    onSettled: (_, error) => {
-      if (error) {
-        alert('Error saving user');
-        return;
-      }
-
-      alert('User saved');
-      setState(INITIAL_STATE);
-    },
-  });
-
-  const isSaving = isLoadingMutation(userCreateMutation);
-
   // Load user data after component is mounted
   React.useLayoutEffect(() => {
-    if (mode === 'create' || !data?.user || isLoading) return;
+    if (mode === 'create' || !data.user) return;
 
     const { name, age, city, verified } = data.user;
 
@@ -131,7 +93,15 @@ const UserForm = () => {
         className="flex flex-col gap-4"
         onSubmit={(e) => {
           e.preventDefault();
-          userCreateMutation.mutate(state);
+          setLoading(true);
+          DataRepo.saveUser(state)
+            .catch(() => {
+              alert('Error saving user');
+            })
+            .finally(() => {
+              setLoading(false);
+              alert('User saved');
+            });
         }}
       >
         <Input
@@ -165,7 +135,7 @@ const UserForm = () => {
           className="px-4 py-2 text-white bg-blue-500 rounded-md hover:bg-blue-700"
           type="submit"
         >
-          {isSaving ? 'Saving...' : mode === 'edit' ? 'Edit' : 'Create'}
+          {loading ? 'Saving...' : mode === 'edit' ? 'Edit' : 'Create'}
         </button>
       </form>
     </div>

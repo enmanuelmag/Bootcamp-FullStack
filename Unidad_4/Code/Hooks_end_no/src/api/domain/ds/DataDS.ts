@@ -10,8 +10,6 @@ abstract class DataDS {
   abstract loadUserByIndex(index: number): Promise<UserByIndexLoaderData>;
 
   abstract saveUser(user: UserCreate): Promise<void>;
-
-  abstract deleteUser(index: number): Promise<void>;
 }
 
 export default DataDS;

@@ -24,7 +24,6 @@ class LocalStorageDS implements DataDS {
       throw new Error('Error loading users');
     }
   }
-
   async loadUserByIndex(index: number) {
     try {
       await sleep();
@@ -41,7 +40,6 @@ class LocalStorageDS implements DataDS {
       throw new Error('Error loading user');
     }
   }
-
   async saveUser(user: UserCreate) {
     try {
       await sleep();
@@ -59,23 +57,6 @@ class LocalStorageDS implements DataDS {
     } catch (error) {
       console.error(error);
       throw new Error('Error saving user');
-    }
-  }
-
-  async deleteUser(index: number) {
-    try {
-      await sleep();
-
-      const usersRaw = localStorage.getItem(USERS_KEY) ?? '[]';
-
-      const users = JSON.parse(usersRaw) as User[];
-
-      users.splice(index, 1);
-
-      localStorage.setItem(USERS_KEY, JSON.stringify(users));
-    } catch (error) {
-      console.error(error);
-      throw new Error('Error deleting user');
     }
   }
 }

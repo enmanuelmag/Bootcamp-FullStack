@@ -1,7 +1,9 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+// Importar BrowserRouter y RouterProvider
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+
+import DataRepo from '@api/datasource';
 
 import Layout from './components/Layout';
 
@@ -14,7 +16,6 @@ import ErrorUser from './pages/users/error';
 
 import './index.css';
 
-const queryClient = new QueryClient();
 // Crear el BrowserRouter
 const router = createBrowserRouter([
   {
@@ -27,16 +28,23 @@ const router = createBrowserRouter([
       },
       {
         path: 'users/view/:index',
-
+        loader: ({ params }) => {
+          return DataRepo.loadUserByIndex(Number(params.index));
+        },
         element: <UserView />,
       },
       {
         path: 'users/form/:index?',
-
+        loader: ({ params }) => {
+          return DataRepo.loadUserByIndex(Number(params.index));
+        },
         element: <UserForm />,
       },
       {
         path: 'users/:state?',
+        loader: ({ params }) => {
+          return DataRepo.loadUsers(params.state);
+        },
         element: <Users />,
         errorElement: <ErrorUser />,
       },
@@ -46,9 +54,7 @@ const router = createBrowserRouter([
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <QueryClientProvider client={queryClient}>
-      {/* Añadir el RouterProvider con el router */}
-      <RouterProvider router={router} />
-    </QueryClientProvider>
+    {/* Añadir el RouterProvider con el router */}
+    <RouterProvider router={router} />
   </StrictMode>
 );
