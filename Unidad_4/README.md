@@ -40,10 +40,6 @@ Para esta práctica crearemos un nuevo endpoint `users/form/:id?` que nos permit
 
 Se deben cumplir los siguientes requerimientos al usar los hooks:
 - useState, para administrar el type “Form” que tendrá los datos del formulario.
-- useLayout, para precargar los datos cuando se tiene un ID en el URL.
-- useMemo, para hacer que un componente custom cambie solo cuando verified cambia.
-- useRef, para hacer un focus manual a un input al entrar
-- useEffect, para invocar la función de focus del valor de hook useRef solo cuando la página se monta por primera vez.
 
 Pasos:
 1. Crear una función `$` en la carpeta `src/utils/styles.ts` que nos permita usar estilos de manera más sencilla.
@@ -51,13 +47,13 @@ Pasos:
 ```bash 
 npm install zod
 ```
-3. Migrar todos los type que se hayan creado en las prácticas anteriores a la carpeta `src/types` y hacer uso de zod.
-4. Crear los componentes de input necesarios en la carpeta `src/components/Form`.
+1. Migrar todos los type que se hayan creado en las prácticas anteriores a la carpeta `src/types` y hacer uso de zod.
+2. Crear los componentes de input necesarios en la carpeta `src/components/Form`.
       - Check
       - Input
       - Number
       - Verified
-5. Crear la nueva vista/componente `form.tsx` en la carpeta `src/pages/users` que contenga el formulario y cumpla con los requerimientos. Dejar la lógica del guardado para el final.
+3. Crear la nueva vista/componente `form.tsx` en la carpeta `src/pages/users` que contenga el formulario y cumpla con los requerimientos. Dejar la lógica del guardado para el final.
 
 Es importante todo este background de ReactJS porque esta librería al no ser un framework es muy fácil perderse en malas prácticas de código, estructura de proyecto y de más que después provocarán que sea muy difícil de mantener y adoptar para nuestros programadores. Se debe siempre estar al tanto de los patrones y buenas prácticas para aplicarlas de la mejor manera en todo proyecto.
 
