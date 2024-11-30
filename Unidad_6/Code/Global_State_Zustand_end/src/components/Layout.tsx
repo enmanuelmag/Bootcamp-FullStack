@@ -1,13 +1,13 @@
 import React from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 
-import MyContext from '@context/index';
+import useStore from '@store/index';
 
 const Layout = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const { role } = React.useContext(MyContext);
+  const { role } = useStore();
 
   React.useEffect(() => {
     if (role === 'user' && location.pathname.includes('users/form')) {

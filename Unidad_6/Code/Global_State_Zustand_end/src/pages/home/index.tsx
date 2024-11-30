@@ -1,9 +1,7 @@
-import React from 'react';
-
-import MyContext from '@context/index';
+import useStore from '@store/index';
 
 const Home = () => {
-  const { name, role } = React.useContext(MyContext);
+  const { name, role } = useStore();
 
   console.log('Home', name, role);
 

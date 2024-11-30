@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useMutation, useQuery } from '@tanstack/react-query';
 
-import MyContext from '@context/index';
+import useStore from '@store/index';
 
 import {
   UserCreate,
@@ -37,7 +37,7 @@ const INITIAL_STATE: UserCreate = {
 const UserForm = () => {
   const { index } = useParams<Params>();
 
-  const { role, city: cityUserLogin } = React.useContext(MyContext);
+  const { role, city: cityUserLogin } = useStore();
 
   const navigate = useNavigate();
 
