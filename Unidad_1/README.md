@@ -59,6 +59,8 @@ src/
 
 Los props es un análogo de los parámetros que hemos visto en las funciones. Para enviar un valor en un prop a un componente se lo realiza como los atributos HTML antes revisado, con la diferencia de que ahora no solo pueden recibir String, si no también todos los demás valores primitivos y complejos como JSONs, Clases o incluso, otro Componente de ReactJS.
 
+Como tal React no es difícil, pero si hay que tener en el mapa ciertas bases o conocimientos para construir buenas aplicaciones. Tales como el ciclo de vida y como utilizarlo, sobre todo el tema de memorization. Patrones de diseño eficientes. El uso de librerías adecuadas etc
+
 ## Compilación 
 
 Con ReactJS, el programador escribe la aplicación web en JSX, TSX (Typescript), junto con CSS (o SCSS) para al final ver una aplicación web que es solo HTML, CSS y JavaScript. Pero...
