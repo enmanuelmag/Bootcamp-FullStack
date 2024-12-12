@@ -9,7 +9,7 @@ const UserProfile = (props: UserProfileProps) => {
   const { name, url, verified, index } = props;
 
   return (
-    <div className="shadow-lg p-[1rem] border border-gray-200 rounded-lg text-center">
+    <div className="shadow-lg p-[1rem] border border-gray-200 rounded-lg text-center flex flex-col justify-center items-center">
       <img
         src={url}
         alt="Avatar"
@@ -24,21 +24,23 @@ const UserProfile = (props: UserProfileProps) => {
         {verified ? 'Verified' : 'Not verified'}
       </p>
 
-      <button
-        className="bg-blue-500 text-white px-4 py-2 rounded mt-2 w-full"
-        onClick={copyData}
-      >
-        Copiar datos
-      </button>
-
-      {index !== undefined && index >= 0 && (
-        <a
-          className="bg-cyan-500 text-white px-4 py-2 rounded mt-2 block"
-          href={`/users/view/${index}`}
+      <div className="w-full">
+        <button
+          className="bg-blue-500 text-white px-4 py-2 rounded mt-2 w-full"
+          onClick={copyData}
         >
-          Ver perfil
-        </a>
-      )}
+          Copiar datos
+        </button>
+
+        {index !== undefined && index >= 0 && (
+          <a
+            className="bg-cyan-500 text-white px-4 py-2 rounded mt-2 block"
+            href={`/users/view/${index}`}
+          >
+            Ver perfil
+          </a>
+        )}
+      </div>
     </div>
   );
 

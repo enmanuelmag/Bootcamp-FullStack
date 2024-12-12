@@ -39,7 +39,7 @@ const UserProfile = (props: UserProfileProps) => {
   });
 
   return (
-    <div className="shadow-lg p-[1rem] border border-gray-200 rounded-lg text-center">
+    <div className="shadow-lg p-[1rem] border border-gray-200 rounded-lg text-center flex flex-col justify-center items-center">
       <img
         src={url}
         alt="Avatar"
@@ -54,37 +54,39 @@ const UserProfile = (props: UserProfileProps) => {
         {verified ? 'Verified' : 'Not verified'}
       </p>
 
-      <button
-        className="bg-blue-500 text-white px-4 py-2 rounded mt-2 w-full hover:bg-blue-600"
-        onClick={copyData}
-      >
-        Copiar datos
-      </button>
-
-      {index !== undefined && index >= 0 && (
-        <a
-          className="bg-cyan-500 text-white px-4 py-2 rounded mt-2 block hover:bg-cyan-600"
-          href={`/users/view/${index}`}
-        >
-          Ver perfil
-        </a>
-      )}
-      {index !== undefined && index >= 0 && (
-        <a
-          className="bg-orange-500 text-white px-4 py-2 rounded mt-2 block hover:bg-orange-600"
-          href={`/users/form/${index}`}
-        >
-          Modificar perfil
-        </a>
-      )}
-      {index !== undefined && index >= 0 && (
+      <div className="w-full">
         <button
-          className="bg-red-500 text-white px-4 py-2 rounded mt-2 block hover:bg-red-600 w-full"
-          onClick={() => userDeleteMutation.mutate(index)}
+          className="bg-blue-500 text-white px-4 py-2 rounded mt-2 w-full hover:bg-blue-600"
+          onClick={copyData}
         >
-          Eliminar perfil
+          Copiar datos
         </button>
-      )}
+
+        {index !== undefined && index >= 0 && (
+          <a
+            className="bg-cyan-500 text-white px-4 py-2 rounded mt-2 block hover:bg-cyan-600"
+            href={`/users/view/${index}`}
+          >
+            Ver perfil
+          </a>
+        )}
+        {index !== undefined && index >= 0 && (
+          <a
+            className="bg-orange-500 text-white px-4 py-2 rounded mt-2 block hover:bg-orange-600"
+            href={`/users/form/${index}`}
+          >
+            Modificar perfil
+          </a>
+        )}
+        {index !== undefined && index >= 0 && (
+          <button
+            className="bg-red-500 text-white px-4 py-2 rounded mt-2 block hover:bg-red-600 w-full"
+            onClick={() => userDeleteMutation.mutate(index)}
+          >
+            Eliminar perfil
+          </button>
+        )}
+      </div>
     </div>
   );
 

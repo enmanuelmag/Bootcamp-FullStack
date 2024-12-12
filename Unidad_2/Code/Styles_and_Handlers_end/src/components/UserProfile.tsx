@@ -8,7 +8,7 @@ const UserProfile = (props: UserProfileProps) => {
   const { name, url, verified } = props;
 
   return (
-    <div className="shadow-lg p-[1rem] border border-gray-200 rounded-lg text-center">
+    <div className="shadow-lg p-[1rem] border border-gray-200 rounded-lg text-center flex flex-col justify-center items-center">
       <img
         src={url}
         alt="Avatar"
@@ -23,12 +23,14 @@ const UserProfile = (props: UserProfileProps) => {
         {verified ? 'Verified' : 'Not verified'}
       </p>
 
-      <button
-        className="bg-blue-500 text-white px-4 py-2 rounded mt-2"
-        onClick={copyData}
-      >
-        Copiar datos
-      </button>
+      <div className="w-full">
+        <button
+          className="bg-blue-500 text-white px-4 py-2 rounded mt-2"
+          onClick={copyData}
+        >
+          Copiar datos
+        </button>
+      </div>
     </div>
   );
 
