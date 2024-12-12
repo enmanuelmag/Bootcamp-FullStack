@@ -16,11 +16,15 @@ import { Pagination } from '@components/Pagination';
 import { useDebounce } from '@hooks/input';
 import Input from '@components/Form/Input';
 
+import { useParams } from 'react-router-dom';
+
 function Users() {
+  const { state } = useParams();
+
   const usersQuery = useQuery<UserLoaderData, Error, UserLoaderData>({
-    queryKey: [QKeys.GET_USERS],
+    queryKey: [QKeys.GET_USERS, state],
     queryFn: async () => {
-      return await DataRepo.loadUsers();
+      return await DataRepo.loadUsers(state);
     },
   });
 
