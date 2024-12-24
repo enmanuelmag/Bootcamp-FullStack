@@ -26,6 +26,9 @@ npm install
 
 # Iniciar el servidor de desarrollo
 npm run dev
+
+# Instalar dep para poder usar alias en tsconfig.json y vite.config.ts
+npm i @types/node -D
 ```
 
 # Componentes en ReactJS
@@ -38,7 +41,9 @@ En ReactJS los bloques de nuestra aplicación son los Componentes, en ellos desa
 Se debe crear un componente que renderice una imagen aleatoria de la API:
 
 ```
-http://avatar.iran.lieara.run/public
+https://avatar.iran.liara.run/public/boy?username=John
+
+https://avatar.iran.liara.run/public/female?username=Jane
 ```
 
 El componente `UserProfile` creado debe estar dentro de la carpeta `src/components/` se debe usar en el archivo de entrada de ViteJs (App.tsx)
@@ -80,9 +85,8 @@ Visual Studio Code:
 
 ## Extra
 
-- Renderizado condicional y dinámico.
 - Añadir un prop “verified” para indicar cuando un usuario ha sido verificado. En caso de serlo mostrar una imagen de “Check” o un texto.
-- Renderizar el componente UserProfile usando los datos de un Array.
+- Investigar sobre renderizado condicional y dinámico.
 
 [Documentación](https://react.dev/learn/conditional-rendering)
 

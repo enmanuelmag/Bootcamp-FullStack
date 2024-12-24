@@ -190,6 +190,8 @@ class DataRepoImpl {
 export default DataRepoImpl;
 ```
 
+> Implementar el código de datasource/index.ts con la creación de las instancias
+
 Como se puede observar, la clase abstracta `DataDS` nos sirve para definir las funciones que debe implementar nuestro Datasource, en este caso `LocalStorageDS`. La clase `LocalStorageDS` implementa la lógica de nuestro Datasource usando LocalStorage. La clase `DataRepoImpl` implementa la lógica de nuestro Repositorio que hará uso de nuestro Datasource el cual se le pasa en el constructor.
 
 Este diseño nos permite tener una separación de responsabilidades y una fácil escalabilidad de nuestro proyecto. Además, nos permite cambiar fácilmente la implementación de nuestro Datasource sin afectar al resto de la aplicación, por si un dia usamos por ejemplo una API REST o Firebase en lugar de LocalStorage.
@@ -197,3 +199,13 @@ Este diseño nos permite tener una separación de responsabilidades y una fácil
 ## Extra (Tarea)
 
 Crear un botón en el componente “UserProfile” que se llame “Eliminar” de color rojo. Este deberá invocar una nueva función en nuestro DataSource “deleteUser” que recibe el index del usuario y lo elimina de la base de datos.
+
+Pasos:
+1. Instalar la librería `@tanstack/react-query` que nos permitirá hacer consultas a nuestro DataSource de manera más sencilla.
+```bash
+npm install @tanstack/react-query
+```
+2. Usar el Provider QueryClientProvider en nuestro archivo `src/main.tsx` para envolver toda la aplicación.
+3. Crear las constantes para los keys de cada query en el archivo `src/constants/query.ts`.
+4. Crear funciones utils para detectar cuando este cargando una query y cuando haya un error en el archivo `src/utils/query.ts`.
+5. Hacer uso de la función useQuery/useMutation en nuestro componente UserProfile para obtener los datos del usuario.
