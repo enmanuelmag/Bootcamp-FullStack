@@ -115,9 +115,31 @@ export const usePagination = <T>(params: PaginationProps<T>) => {
 
 ## Extra (revisión en sesión presencial)
 
+
+### Custom debounce hook
 Se realizará la creación de otro hook llamado `useDebounce` que permite retrasar la ejecución de una función hasta que haya pasado un tiempo determinado sin que se haya vuelto a llamar.
 
 Se debe crear un nuevo Hook “useDebounce” el cual recibe como parámetros valor inicial de tipo parametrizado y un valor numérico. Como return devolverá una función para actualizar el valor (como el useState) y el valor almacenado dentro del Hook, pero actualizado solo después de que haya pasado la cantidad de milisegundos especificada en el parámetro numérico.
+
+
 Es decir, para actualizar el valor dentro del Hook se usará su función retornada pero el valor del state retornado por el Hook solo se actualizará una vez que haya transcurrido la cantidad de milisegundos del parámetro después de la última actualización. Cada vez que se actualiza el valor el contador debe reiniciarse y la actualización solo se efectuará cuando el tiempo necesario se haya cumplido.
+
+
 Este nuevo Hook sebe ser implementado en la página “/users”. Con el objetivo de agregar un input para buscar un usuario por nombre. Cada vez que el usuario escribe se debe actualiza el valor de Hook, pero la búsqueda vista solo se actualiza cuando el Hook haya retornado el valor actualizado.
+
+
 Puntos extra: lograr retornar un valor adicional “debouncing” que indica cuando el Hook está esperando que se cumpla el tiempo necesario para actualizar el valor, un análogo de un estado de “cargando”.
+
+### React Hook Form
+
+Esta libreria nos ayudará a manejar formularios de una manera más sencilla y eficiente. Se debe instalar la librería con el siguiente comando:
+
+```bash
+npm install react-hook-form @hookform/resolvers
+```
+
+Para más información sobre la librería, se puede consultar la documentación oficial en el siguiente enlace: [React Hook Form](https://react-hook-form.com/)
+
+Pasos:
+- Refactorizar el formulario del archivo `src/pages/users/form.tsx` para utilizar React Hook Form.
+- Remover el uso del hook useState para la variable `state`.

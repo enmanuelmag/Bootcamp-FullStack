@@ -7,7 +7,7 @@ Es la forma en la que el usuario puede desplazarse o visitar diferentes seccione
 - Estáticas
 - Dinámicas
 
-## ¿Por qué Routing?
+## ¿Por qué Routing usarlo?
 
 - Mejora la experiencia del usuario.
 - Facilita la navegación.

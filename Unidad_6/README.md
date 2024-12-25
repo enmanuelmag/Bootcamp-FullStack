@@ -11,15 +11,18 @@ Los componentes pueden compartir valores entre sí con la ayuda de props. Sin em
 ## ¿Qué opciones hay para crearlo?
 
 - React Context.
-- Redux (Sagas o Thunks)
 - Zustand
+- Redux (Sagas o Thunks)
 
 ## Definición de implementación
 
-A continuación, usaremos el global State para mocker los datos de un usuario logeado que puede tener el rol de “admin” o “saas-user” y “user”.
+A continuación, usaremos el global State para mocker los datos de un usuario logeado que puede tener el rol de “admin” y “user”.
 - Admin, puede entrar a todas las secciones y crear nuevos usuarios.
-- Saas-user, puede entra a todas las secciones y crear usuarios, pero en el campo ciudad el valor permitido solo será el mismo valor del campo “city” del usuario logeado.
 - User, no puede crear nuevos usuarios solo listar usuarios o alguno con su URL directo.
+
+> Puntos extra: Definir un tema de la aplicación con store zustand, que puede ser “light” o “dark”.
+> Este valor debe ser accesible desde cualquier componente de la aplicación.
+> Y se debe cambiar desde un botón que estará en el layout.
 
 ## Implementación React Context
 
@@ -37,16 +40,16 @@ src/
 
 1. Crear el archivo `context.ts` en la carpeta `types`, este archivo definirá la estructura de los datos que se almacenarán en el estado global.
 ```typescript
-import z from 'zod';
+import { z } from 'zod';
+import { UserSchema } from './user';
 
-export const UserLoginSchema = z.object({
-  name: z.string(),
-  city: z.string(),
-  email: z.string(),
-  role: z.enum(['admin', 'saas-user', 'user']),
+export const UserLoginSchema = UserSchema.pick({
+  name: true,
+}).extend({
+  role: z.enum(['admin', 'user']),
 });
 
-export type UserLogin = z.infer<typeof UserLoginSchema>;
+export type UserLoginType = z.infer<typeof UserLoginSchema>;
 ```
 2. Crear el archivo `index.ts` en la carpeta `context`, este archivo definirá el contexto y el proveedor del estado global.
 ```typescript
@@ -55,9 +58,7 @@ import { UserLogin } from '@customTypes/context';
 
 export const INITIAL_USER_LOGIN: UserLogin = {
   name: 'Enmanuel',
-  city: 'Manta',
-  email: 'enmanuelmag@cardor.dev',
-  role: 'saas-user',
+  role: 'user',
 };
 
 const MyContext = React.createContext<UserLogin>(INITIAL_USER_LOGIN);
@@ -66,8 +67,209 @@ export default MyContext;
 ```
 3. Envolver a nuestra app con el proveedor del contexto en el archivo `main.tsx`.
 4. En el componente Layout, crear la lógica para validar que el usuario tiene permiso para ingresar a los paths de la aplicación.
-5. Modificar el componente `form.tsx` para añadir las validaciones y valores por defecto si el rol es "saas-user" (solo puede crear usuarios con la misma ciudad).
-6. En el componente `home`, ocultar las secciones según el rol del usuario.
+5. En el componente `home`, ocultar las secciones según el rol del usuario.
+
+Pasos para toggle de tema:
+1. Crear el nuevo type `Theme` en el archivo `context.ts`.
+```typescript
+export const ThemeSchema = z.object({
+  schema: z.enum(['light', 'dark']),
+  toggleSchema: z.function().returns(z.void()),
+});
+
+export type ThemeType = z.infer<typeof ThemeSchema>;
+```
+2. Actualizar el initial state del contexto en el archivo `index.ts`.
+```typescript
+const INITIAL_USER_LOGIN: UserLoginType = {
+  name: 'Enmanuel',
+  role: 'user',
+};
+
+const INITIAL_THEME: ThemeType = {
+  schema: 'light',
+  toggleSchema: () => {
+    throw new Error('toggleSchema not implemented');
+  },
+};
+
+export const INITIAL_STATE = {
+  ...INITIAL_USER_LOGIN,
+  ...INITIAL_THEME,
+}
+
+export type MyContextType = UserLoginType & ThemeType;
+
+const MyContext = React.createContext<MyContextType>(INITIAL_STATE);
+```
+3. Enviar el nuevo INITIAL_THEME en el proveedor del contexto.
+```jsx
+function App() {
+  const [state, setState] = React.useState<MyContextType>(INITIAL_STATE);
+
+  React.useEffect(() => {
+    const schema = localStorage.getItem('schema') as 'light' | 'dark' | null;
+
+    if (schema) {
+      setSchema(schema);
+    }
+  }, []);
+
+  return (
+    <MyContext.Provider
+      value={{
+        ...state,
+        toggleSchema: () =>
+          setSchema(state.schema === 'light' ? 'dark' : 'light'),
+      }}
+    >
+      {/* Añadir el RouterProvider con el router */}
+      <RouterProvider router={router} />
+    </MyContext.Provider>
+  );
+
+  function setSchema(newSchema: 'light' | 'dark') {
+    setState((prev) => ({
+      ...prev,
+      schema: newSchema,
+    }));
+
+    localStorage.setItem('schema', newSchema);
+
+    if (newSchema === 'light') {
+      document.body.classList.remove('cd-dark');
+    } else {
+      document.body.classList.add('cd-dark');
+    }
+  }
+}
+
+createRoot(document.getElementById('root')!).render(
+  <StrictMode>
+    <QueryClientProvider client={queryClient}>
+      <App />
+    </QueryClientProvider>
+  </StrictMode>
+);
+```
+5. En el componente Layout, crear el botón para cambiar el tema de la aplicación.
+6. Actualizar ciertos estilos según el tema seleccionado.
+7. Actualizar el config de tailwind.
+```ts
+/** @type {import('tailwindcss').Config} */
+export default {
+  darkMode: 'selector', // <--- Añadir esta línea
+  content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
+  // Usar prefijos en las clases puede ser útil para evitar conflictos con otras librerías o para encontrar más fácilmente las clases de Tailwind
+  prefix: 'cd-',
+  theme: {
+    extend: {},
+  },
+  plugins: [],
+};
+
+```
+
+## Implementación Zustand
+
+Primero se debe instalar las dependencias necesarias:
+```bash
+npm install zustand
+```
+
+La implementación de Zustand es mucho las sencilla que Redux y Context, ya que solo se necesita crear el store (con sus acciones y reducers) y para acceder a los valores del store se puede usar el hook que devuelve la función `create` de Zustand, no es necesario envolver a la app con un proveedor de contexto.
+
+Estructura de carpetas:
+```
+src/
+  ...
+  store/
+    index.ts
+  ...
+```
+
+1. Crear el archivo `index.ts` en la carpeta `store`, este archivo definirá el store de Zustand.
+2. Crear la carpeta `slice` en la carpeta `store`. Y dentro crear el archivo `user.ts` y `theme.ts`.
+3. Dentro de cada slice definiremos el `type` de campos y acciones de cada slice.
+
+Slice de `user.ts`:
+```typescript
+import { UserLoginType } from '@customTypes/store';
+
+export type UserActionsType = {
+  clearUser: () => void;
+  setUser: (user: UserLoginType) => void;
+  setField: (
+    key: keyof UserLoginType,
+    value: string | 'admin' | 'user'
+  ) => void;
+};
+
+export const initialUserState: UserLoginType = {
+  name: '',
+  role: 'user',
+};
+```
+
+Slice de `schema.ts`:
+```typescript
+import { ThemeType } from '@customTypes/store';
+
+export type ThemeActionsType = {
+  toggleTheme: () => void;
+  clearTheme: () => void;
+};
+
+export const initialSchemaState: ThemeType = {
+  schema: 'light',
+};
+```
+
+4. Ahora solo queda crear el store de Zustand en el archivo `index.ts` de la carpeta `store` con el contenido de los slice y definir las funciones que modificarán el estado global.
+```typescript
+import { create } from 'zustand';
+
+import { ThemeType, UserLoginType } from '@customTypes/store';
+
+import { UserActionsType, initialUserState } from '@store/slices/user';
+import { ThemeActionsType, initialSchemaState } from '@store/slices/schema';
+
+type StoreType = UserLoginType & UserActionsType & ThemeType & ThemeActionsType;
+
+const useStore = create<StoreType>((set) => ({
+  ...initialUserState,
+  ...initialSchemaState,
+  //actions user
+  setUser: (user) => set((state) => ({ ...state, ...user })),
+  setField: (field, value) => set((state) => ({ ...state, [field]: value })),
+  //actions theme
+  clearTheme: () => set((state) => ({ ...state, schema: 'light' })),
+  clearUser: () => set((state) => ({ ...state, ...initialUserState })),
+  toggleTheme: () =>
+    set((state) => {
+      const newSchema = state.schema === 'light' ? 'dark' : 'light';
+
+      localStorage.setItem('schema', newSchema);
+
+      if (newSchema === 'light') {
+        document.body.classList.remove('cd-dark');
+      } else {
+        document.body.classList.add('cd-dark');
+      }
+
+      return {
+        ...state,
+        schema: newSchema,
+      };
+    }),
+}));
+
+export default useStore;
+```
+5. Actualizar el `main.tsx` debido a que ahora no necesitamos ningun provider.
+6. Actualizar la app para usar el hook personalizado `useStore` . Recordemos que podemos acceder a los valores y funciones del store de manera directa.
+7. Añadir el useEffect para cargar el tema guardado en el localStorage desde el componente Layout.
+
 
 ## Implementación Redux
 
@@ -99,7 +301,7 @@ export const UserLoginSchema = z.object({
   name: z.string(),
   city: z.string(),
   email: z.string(),
-  role: z.enum(['admin', 'saas-user', 'user']),
+  role: z.enum(['admin', 'user']),
 });
 
 export type UserLogin = z.infer<typeof UserLoginSchema>;
@@ -221,101 +423,3 @@ export const useAppSelector = useSelector.withTypes<RootState>();
 ```
 7. Actualizar la app para usar el hook personalizado en lugar de `useDispatch` (devuelve la función dispatch para actualizar) y `useSelector` (devuelve el valor según el selector que se le pase).
 8. En el componente Layout, crear la lógica para validar que el usuario tiene permiso para ingresar a los paths de la aplicación.
-
-## Implementación Zustand
-
-Primero se debe instalar las dependencias necesarias:
-```bash
-npm install zustand
-```
-
-La implementación de Zustand es mucho las sencilla que Redux y Context, ya que solo se necesita crear el store (con sus acciones y reducers) y para acceder a los valores del store se puede usar el hook que devuelve la función `create` de Zustand, no es necesario envolver a la app con un proveedor de contexto.
-
-Estructura de carpetas:
-```
-src/
-  ...
-  store/
-    index.ts
-  ...
-```
-
-1. Crear el archivo `index.ts` en la carpeta `store`, este archivo definirá el store de Zustand.
-2. Crear la carpeta `slice` en la carpeta `store`. Y dentro crear el archivo `user.ts` y `theme.ts`.
-3. Dentro de cada slice definiremos el `type` de campos y acciones de cada slice.
-
-Slice de `user.ts`:
-```typescript
-import { UserLogin } from '@customTypes/context';
-
-export type UserState = {
-  name: string;
-  city: string;
-  email: string;
-  role: string;
-};
-
-export type StoreActions = {
-  clear: () => void;
-  setUser: (user: UserLogin) => void;
-  setField: (field: keyof UserLogin, value: string) => void;
-};
-
-export const INITIAL_STATE: UserState = {
-  name: '',
-  city: '',
-  email: '',
-  role: '',
-};
-```
-
-Slice de `theme.ts`:
-```typescript
-export type ThemeStore = {
-  schema: 'light' | 'dark';
-};
-
-export type StoreActions = {
-  toggleTheme: () => void;
-  setTheme: (schema: ThemeStore['schema']) => void;
-};
-
-export const INITIAL_STATE: ThemeStore = {
-  schema: 'light',
-};
-```
-
-4. Ahora solo queda crear el store de Zustand en el archivo `index.ts` de la carpeta `store` con el contenido de los slice y definir las funciones que modificarán el estado global.
-```typescript
-import { create } from 'zustand';
-
-import {
-  UserState,
-  StoreActions,
-  INITIAL_STATE as INITIAL_USER,
-} from '@store/slides/user';
-import {
-  ThemeStore,
-  StoreActions as ThemeActions,
-  INITIAL_STATE as INITIAL_THEME,
-} from '@store/slides/theme';
-
-const useStore = create<StoreActions & ThemeActions & UserState & ThemeStore>(
-  (set) => ({
-    ...INITIAL_USER,
-    ...INITIAL_THEME,
-    //actions user
-    clear: () => set(INITIAL_USER),
-    setUser: (user) => set(user),
-    setField: (field, value) => set((state) => ({ ...state, [field]: value })),
-    //actions theme
-    toggleTheme: () =>
-      set((state) => ({ schema: state.schema === 'light' ? 'dark' : 'light' })),
-    setTheme: (schema) => set({ schema }),
-  })
-);
-
-export default useStore;
-
-```
-5. Actualizar la app para usar el hook personalizado `useStore` en lugar de `useDispatch` (devuelve la función dispatch para actualizar) y `useSelector` (devuelve el valor según el selector que se le pase). Recordemos que ahora podemos acceder a los valores y funciones del store de manera directa.

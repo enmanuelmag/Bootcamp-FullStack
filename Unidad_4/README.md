@@ -165,6 +165,28 @@ class LocalStorageDS implements DataDS {
       throw new Error('Error saving user');
     }
   }
+
+  async updateUser(index: number, user: UserCreateType) {
+    try {
+      await sleep();
+
+      const users = this.getUsers();
+
+      const newUsers: UserType[] = users;
+
+      const userToUpdate = newUsers[index];
+
+      newUsers[index] = {
+        ...userToUpdate,
+        ...user,
+      };
+
+      localStorage.setItem(USER_KEY, JSON.stringify(newUsers));
+    } catch (error) {
+      console.error(error);
+      throw new Error('Error al actualizar el usuario');
+    }
+  }
 }
 
 export default LocalStorageDS;
@@ -185,10 +207,16 @@ class DataRepoImpl {
   async saveUser(user: UserCreate): Promise<void> {
     return await this.data.saveUser(user);
   }
+
+  async updateUser(index: number, user: UserCreateType): Promise<void> {
+    return this.data.updateUser(index, user);
+  }
 }
 
 export default DataRepoImpl;
 ```
+
+> Implementar el código de datasource/index.ts con la creación de las instancias
 
 Como se puede observar, la clase abstracta `DataDS` nos sirve para definir las funciones que debe implementar nuestro Datasource, en este caso `LocalStorageDS`. La clase `LocalStorageDS` implementa la lógica de nuestro Datasource usando LocalStorage. La clase `DataRepoImpl` implementa la lógica de nuestro Repositorio que hará uso de nuestro Datasource el cual se le pasa en el constructor.
 
@@ -197,3 +225,22 @@ Este diseño nos permite tener una separación de responsabilidades y una fácil
 ## Extra (Tarea)
 
 Crear un botón en el componente “UserProfile” que se llame “Eliminar” de color rojo. Este deberá invocar una nueva función en nuestro DataSource “deleteUser” que recibe el index del usuario y lo elimina de la base de datos.
+
+
+## Extra (React Query)
+Existen muchas libs que nos pueden ayudar a resolver tareas, ahora revisaremos una que se llama react-query. Otras muy útiles para otras tareas son:
+- Mantine, para componentes UI y tambien dispone de muchos hooks
+- React-hook-form, para formularios.
+- moment.js, para manejo de fechas.
+- Axios, para peticiones HTTP.
+- React-leaflet, para mapas.
+
+Pasos para implementar React Query:
+1. Instalar la librería `@tanstack/react-query` que nos permitirá hacer consultas a nuestro DataSource de manera más sencilla.
+```bash
+npm install @tanstack/react-query
+```
+1. Usar el Provider QueryClientProvider en nuestro archivo `src/main.tsx` para envolver toda la aplicación.
+2. Crear las constantes para los keys de cada query en el archivo `src/constants/query.ts`.
+3. Crear funciones utils para detectar cuando este cargando una query y cuando haya un error en el archivo `src/utils/query.ts`.
+4. Hacer uso de la función useQuery/useMutation en nuestro componente `UserProfile` para obtener los datos del usuario.
