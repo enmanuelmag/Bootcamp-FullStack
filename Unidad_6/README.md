@@ -69,6 +69,105 @@ export default MyContext;
 5. Modificar el componente `form.tsx` para añadir las validaciones y valores por defecto si el rol es "saas-user" (solo puede crear usuarios con la misma ciudad).
 6. En el componente `home`, ocultar las secciones según el rol del usuario.
 
+## Implementación Zustand
+
+Primero se debe instalar las dependencias necesarias:
+```bash
+npm install zustand
+```
+
+La implementación de Zustand es mucho las sencilla que Redux y Context, ya que solo se necesita crear el store (con sus acciones y reducers) y para acceder a los valores del store se puede usar el hook que devuelve la función `create` de Zustand, no es necesario envolver a la app con un proveedor de contexto.
+
+Estructura de carpetas:
+```
+src/
+  ...
+  store/
+    index.ts
+  ...
+```
+
+1. Crear el archivo `index.ts` en la carpeta `store`, este archivo definirá el store de Zustand.
+2. Crear la carpeta `slice` en la carpeta `store`. Y dentro crear el archivo `user.ts` y `theme.ts`.
+3. Dentro de cada slice definiremos el `type` de campos y acciones de cada slice.
+
+Slice de `user.ts`:
+```typescript
+import { UserLogin } from '@customTypes/context';
+
+export type UserState = {
+  name: string;
+  city: string;
+  email: string;
+  role: string;
+};
+
+export type StoreActions = {
+  clear: () => void;
+  setUser: (user: UserLogin) => void;
+  setField: (field: keyof UserLogin, value: string) => void;
+};
+
+export const INITIAL_STATE: UserState = {
+  name: '',
+  city: '',
+  email: '',
+  role: '',
+};
+```
+
+Slice de `theme.ts`:
+```typescript
+export type ThemeStore = {
+  schema: 'light' | 'dark';
+};
+
+export type StoreActions = {
+  toggleTheme: () => void;
+  setTheme: (schema: ThemeStore['schema']) => void;
+};
+
+export const INITIAL_STATE: ThemeStore = {
+  schema: 'light',
+};
+```
+
+4. Ahora solo queda crear el store de Zustand en el archivo `index.ts` de la carpeta `store` con el contenido de los slice y definir las funciones que modificarán el estado global.
+```typescript
+import { create } from 'zustand';
+
+import {
+  UserState,
+  StoreActions,
+  INITIAL_STATE as INITIAL_USER,
+} from '@store/slides/user';
+import {
+  ThemeStore,
+  StoreActions as ThemeActions,
+  INITIAL_STATE as INITIAL_THEME,
+} from '@store/slides/theme';
+
+const useStore = create<StoreActions & ThemeActions & UserState & ThemeStore>(
+  (set) => ({
+    ...INITIAL_USER,
+    ...INITIAL_THEME,
+    //actions user
+    clear: () => set(INITIAL_USER),
+    setUser: (user) => set(user),
+    setField: (field, value) => set((state) => ({ ...state, [field]: value })),
+    //actions theme
+    toggleTheme: () =>
+      set((state) => ({ schema: state.schema === 'light' ? 'dark' : 'light' })),
+    setTheme: (schema) => set({ schema }),
+  })
+);
+
+export default useStore;
+
+```
+5. Actualizar la app para usar el hook personalizado `useStore` en lugar de `useDispatch` (devuelve la función dispatch para actualizar) y `useSelector` (devuelve el valor según el selector que se le pase). Recordemos que ahora podemos acceder a los valores y funciones del store de manera directa.
+
+
 ## Implementación Redux
 
 Primero se debe instalar las dependencias necesarias:
@@ -221,101 +320,3 @@ export const useAppSelector = useSelector.withTypes<RootState>();
 ```
 7. Actualizar la app para usar el hook personalizado en lugar de `useDispatch` (devuelve la función dispatch para actualizar) y `useSelector` (devuelve el valor según el selector que se le pase).
 8. En el componente Layout, crear la lógica para validar que el usuario tiene permiso para ingresar a los paths de la aplicación.
-
-## Implementación Zustand
-
-Primero se debe instalar las dependencias necesarias:
-```bash
-npm install zustand
-```
-
-La implementación de Zustand es mucho las sencilla que Redux y Context, ya que solo se necesita crear el store (con sus acciones y reducers) y para acceder a los valores del store se puede usar el hook que devuelve la función `create` de Zustand, no es necesario envolver a la app con un proveedor de contexto.
-
-Estructura de carpetas:
-```
-src/
-  ...
-  store/
-    index.ts
-  ...
-```
-
-1. Crear el archivo `index.ts` en la carpeta `store`, este archivo definirá el store de Zustand.
-2. Crear la carpeta `slice` en la carpeta `store`. Y dentro crear el archivo `user.ts` y `theme.ts`.
-3. Dentro de cada slice definiremos el `type` de campos y acciones de cada slice.
-
-Slice de `user.ts`:
-```typescript
-import { UserLogin } from '@customTypes/context';
-
-export type UserState = {
-  name: string;
-  city: string;
-  email: string;
-  role: string;
-};
-
-export type StoreActions = {
-  clear: () => void;
-  setUser: (user: UserLogin) => void;
-  setField: (field: keyof UserLogin, value: string) => void;
-};
-
-export const INITIAL_STATE: UserState = {
-  name: '',
-  city: '',
-  email: '',
-  role: '',
-};
-```
-
-Slice de `theme.ts`:
-```typescript
-export type ThemeStore = {
-  schema: 'light' | 'dark';
-};
-
-export type StoreActions = {
-  toggleTheme: () => void;
-  setTheme: (schema: ThemeStore['schema']) => void;
-};
-
-export const INITIAL_STATE: ThemeStore = {
-  schema: 'light',
-};
-```
-
-4. Ahora solo queda crear el store de Zustand en el archivo `index.ts` de la carpeta `store` con el contenido de los slice y definir las funciones que modificarán el estado global.
-```typescript
-import { create } from 'zustand';
-
-import {
-  UserState,
-  StoreActions,
-  INITIAL_STATE as INITIAL_USER,
-} from '@store/slides/user';
-import {
-  ThemeStore,
-  StoreActions as ThemeActions,
-  INITIAL_STATE as INITIAL_THEME,
-} from '@store/slides/theme';
-
-const useStore = create<StoreActions & ThemeActions & UserState & ThemeStore>(
-  (set) => ({
-    ...INITIAL_USER,
-    ...INITIAL_THEME,
-    //actions user
-    clear: () => set(INITIAL_USER),
-    setUser: (user) => set(user),
-    setField: (field, value) => set((state) => ({ ...state, [field]: value })),
-    //actions theme
-    toggleTheme: () =>
-      set((state) => ({ schema: state.schema === 'light' ? 'dark' : 'light' })),
-    setTheme: (schema) => set({ schema }),
-  })
-);
-
-export default useStore;
-
-```
-5. Actualizar la app para usar el hook personalizado `useStore` en lugar de `useDispatch` (devuelve la función dispatch para actualizar) y `useSelector` (devuelve el valor según el selector que se le pase). Recordemos que ahora podemos acceder a los valores y funciones del store de manera directa.
