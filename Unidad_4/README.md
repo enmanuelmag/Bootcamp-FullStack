@@ -228,12 +228,19 @@ Crear un botón en el componente “UserProfile” que se llame “Eliminar” d
 
 
 ## Extra (React Query)
-Pasos:
+Existen muchas libs que nos pueden ayudar a resolver tareas, ahora revisaremos una que se llama react-query. Otras muy útiles para otras tareas son:
+- Mantine, para componentes UI y tambien dispone de muchos hooks
+- React-hook-form, para formularios.
+- moment.js, para manejo de fechas.
+- Axios, para peticiones HTTP.
+- React-leaflet, para mapas.
+
+Pasos para implementar React Query:
 1. Instalar la librería `@tanstack/react-query` que nos permitirá hacer consultas a nuestro DataSource de manera más sencilla.
 ```bash
 npm install @tanstack/react-query
 ```
-2. Usar el Provider QueryClientProvider en nuestro archivo `src/main.tsx` para envolver toda la aplicación.
-3. Crear las constantes para los keys de cada query en el archivo `src/constants/query.ts`.
-4. Crear funciones utils para detectar cuando este cargando una query y cuando haya un error en el archivo `src/utils/query.ts`.
-5. Hacer uso de la función useQuery/useMutation en nuestro componente `UserProfile` para obtener los datos del usuario.
+1. Usar el Provider QueryClientProvider en nuestro archivo `src/main.tsx` para envolver toda la aplicación.
+2. Crear las constantes para los keys de cada query en el archivo `src/constants/query.ts`.
+3. Crear funciones utils para detectar cuando este cargando una query y cuando haya un error en el archivo `src/utils/query.ts`.
+4. Hacer uso de la función useQuery/useMutation en nuestro componente `UserProfile` para obtener los datos del usuario.
