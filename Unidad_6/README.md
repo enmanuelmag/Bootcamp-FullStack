@@ -20,6 +20,10 @@ A continuación, usaremos el global State para mocker los datos de un usuario lo
 - Admin, puede entrar a todas las secciones y crear nuevos usuarios.
 - User, no puede crear nuevos usuarios solo listar usuarios o alguno con su URL directo.
 
+> Puntos extra: Definir un tema de la aplicación, que puede ser “light” o “dark”.
+> Este valor debe ser accesible desde cualquier componente de la aplicación.
+> Y se debe cambiar desde un botón que estará en el layout.
+
 ## Implementación React Context
 
 Estructura de carpetas:
@@ -36,16 +40,16 @@ src/
 
 1. Crear el archivo `context.ts` en la carpeta `types`, este archivo definirá la estructura de los datos que se almacenarán en el estado global.
 ```typescript
-import z from 'zod';
+import { z } from 'zod';
+import { UserSchema } from './user';
 
-export const UserLoginSchema = z.object({
-  name: z.string(),
-  city: z.string(),
-  email: z.string(),
+export const UserLoginSchema = UserSchema.pick({
+  name: true,
+}).extend({
   role: z.enum(['admin', 'user']),
 });
 
-export type UserLogin = z.infer<typeof UserLoginSchema>;
+export type UserLoginType = z.infer<typeof UserLoginSchema>;
 ```
 2. Crear el archivo `index.ts` en la carpeta `context`, este archivo definirá el contexto y el proveedor del estado global.
 ```typescript
@@ -54,8 +58,6 @@ import { UserLogin } from '@customTypes/context';
 
 export const INITIAL_USER_LOGIN: UserLogin = {
   name: 'Enmanuel',
-  city: 'Manta',
-  email: 'enmanuelmag@cardor.dev',
   role: 'user',
 };
 
@@ -66,6 +68,54 @@ export default MyContext;
 3. Envolver a nuestra app con el proveedor del contexto en el archivo `main.tsx`.
 4. En el componente Layout, crear la lógica para validar que el usuario tiene permiso para ingresar a los paths de la aplicación.
 5. En el componente `home`, ocultar las secciones según el rol del usuario.
+
+Pasos para toggle de tema:
+1. Crear el nuevo type `Theme` en el archivo `context.ts`.
+```typescript
+export const ThemeSchema = z.object({
+  schema: z.enum(['light', 'dark']),
+});
+```
+2. Actualizar el initial state del contexto en el archivo `index.ts`.
+```typescript
+export const INITIAL_USER_LOGIN: UserLogin = {
+  name: 'Enmanuel',
+  role: 'user',
+};
+
+export const INITIAL_THEME = {
+  schema: 'light',
+};
+```
+3. Enviar el nuevo INITIAL_THEME en el proveedor del contexto.
+4. Crear el hook personalizado `useTheme` en el archivo `hooks/theme.ts`. El cual devuelve el valor del tema actual y la función para cambiar el tema.
+```typescript
+import React from 'react';
+
+import MyContext from '@context/index';
+
+const THEME_KEY = 'theme';
+
+const useTheme = () => {
+  const { theme, setTheme } = React.useContext(MyContext);
+
+  React.useEffect(() => {
+    localStorage.setItem(THEME_KEY, theme);
+  }, [theme]);
+
+  return [
+    theme,
+    toggleTheme,
+  ] as const;
+
+  function toggleTheme() {
+    setTheme((prev) => (prev === 'light' ? 'dark' : 'light'));
+    localStorage.setItem(THEME_KEY, theme);
+  };
+};
+```
+5. En el componente Layout, crear el botón para cambiar el tema de la aplicación.
+6. Actualizar ciertos estilos según el tema seleccionado.
 
 ## Implementación Zustand
 
