@@ -16,9 +16,8 @@ Los componentes pueden compartir valores entre sí con la ayuda de props. Sin em
 
 ## Definición de implementación
 
-A continuación, usaremos el global State para mocker los datos de un usuario logeado que puede tener el rol de “admin” o “saas-user” y “user”.
+A continuación, usaremos el global State para mocker los datos de un usuario logeado que puede tener el rol de “admin” y “user”.
 - Admin, puede entrar a todas las secciones y crear nuevos usuarios.
-- Saas-user, puede entra a todas las secciones y crear usuarios, pero en el campo ciudad el valor permitido solo será el mismo valor del campo “city” del usuario logeado.
 - User, no puede crear nuevos usuarios solo listar usuarios o alguno con su URL directo.
 
 ## Implementación React Context
@@ -43,7 +42,7 @@ export const UserLoginSchema = z.object({
   name: z.string(),
   city: z.string(),
   email: z.string(),
-  role: z.enum(['admin', 'saas-user', 'user']),
+  role: z.enum(['admin', 'user']),
 });
 
 export type UserLogin = z.infer<typeof UserLoginSchema>;
@@ -57,7 +56,7 @@ export const INITIAL_USER_LOGIN: UserLogin = {
   name: 'Enmanuel',
   city: 'Manta',
   email: 'enmanuelmag@cardor.dev',
-  role: 'saas-user',
+  role: 'user',
 };
 
 const MyContext = React.createContext<UserLogin>(INITIAL_USER_LOGIN);
@@ -66,8 +65,7 @@ export default MyContext;
 ```
 3. Envolver a nuestra app con el proveedor del contexto en el archivo `main.tsx`.
 4. En el componente Layout, crear la lógica para validar que el usuario tiene permiso para ingresar a los paths de la aplicación.
-5. Modificar el componente `form.tsx` para añadir las validaciones y valores por defecto si el rol es "saas-user" (solo puede crear usuarios con la misma ciudad).
-6. En el componente `home`, ocultar las secciones según el rol del usuario.
+5. En el componente `home`, ocultar las secciones según el rol del usuario.
 
 ## Implementación Zustand
 
@@ -198,7 +196,7 @@ export const UserLoginSchema = z.object({
   name: z.string(),
   city: z.string(),
   email: z.string(),
-  role: z.enum(['admin', 'saas-user', 'user']),
+  role: z.enum(['admin', 'user']),
 });
 
 export type UserLogin = z.infer<typeof UserLoginSchema>;
