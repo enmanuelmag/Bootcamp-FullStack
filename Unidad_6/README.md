@@ -11,8 +11,8 @@ Los componentes pueden compartir valores entre sí con la ayuda de props. Sin em
 ## ¿Qué opciones hay para crearlo?
 
 - React Context.
-- Redux (Sagas o Thunks)
 - Zustand
+- Redux (Sagas o Thunks)
 
 ## Definición de implementación
 
@@ -20,7 +20,7 @@ A continuación, usaremos el global State para mocker los datos de un usuario lo
 - Admin, puede entrar a todas las secciones y crear nuevos usuarios.
 - User, no puede crear nuevos usuarios solo listar usuarios o alguno con su URL directo.
 
-> Puntos extra: Definir un tema de la aplicación, que puede ser “light” o “dark”.
+> Puntos extra: Definir un tema de la aplicación con store zustand, que puede ser “light” o “dark”.
 > Este valor debe ser accesible desde cualquier componente de la aplicación.
 > Y se debe cambiar desde un botón que estará en el layout.
 
@@ -74,48 +74,101 @@ Pasos para toggle de tema:
 ```typescript
 export const ThemeSchema = z.object({
   schema: z.enum(['light', 'dark']),
+  toggleSchema: z.function().returns(z.void()),
 });
+
+export type ThemeType = z.infer<typeof ThemeSchema>;
 ```
 2. Actualizar el initial state del contexto en el archivo `index.ts`.
 ```typescript
-export const INITIAL_USER_LOGIN: UserLogin = {
+const INITIAL_USER_LOGIN: UserLoginType = {
   name: 'Enmanuel',
   role: 'user',
 };
 
-export const INITIAL_THEME = {
+const INITIAL_THEME: ThemeType = {
   schema: 'light',
+  toggleSchema: () => {
+    throw new Error('toggleSchema not implemented');
+  },
 };
+
+export const INITIAL_STATE = {
+  ...INITIAL_USER_LOGIN,
+  ...INITIAL_THEME,
+}
+
+export type MyContextType = UserLoginType & ThemeType;
+
+const MyContext = React.createContext<MyContextType>(INITIAL_STATE);
 ```
 3. Enviar el nuevo INITIAL_THEME en el proveedor del contexto.
-4. Crear el hook personalizado `useTheme` en el archivo `hooks/theme.ts`. El cual devuelve el valor del tema actual y la función para cambiar el tema.
-```typescript
-import React from 'react';
-
-import MyContext from '@context/index';
-
-const THEME_KEY = 'theme';
-
-const useTheme = () => {
-  const { theme, setTheme } = React.useContext(MyContext);
+```jsx
+function App() {
+  const [state, setState] = React.useState<MyContextType>(INITIAL_STATE);
 
   React.useEffect(() => {
-    localStorage.setItem(THEME_KEY, theme);
-  }, [theme]);
+    const schema = localStorage.getItem('schema') as 'light' | 'dark' | null;
 
-  return [
-    theme,
-    toggleTheme,
-  ] as const;
+    if (schema) {
+      setSchema(schema);
+    }
+  }, []);
 
-  function toggleTheme() {
-    setTheme((prev) => (prev === 'light' ? 'dark' : 'light'));
-    localStorage.setItem(THEME_KEY, theme);
-  };
-};
+  return (
+    <MyContext.Provider
+      value={{
+        ...state,
+        toggleSchema: () =>
+          setSchema(state.schema === 'light' ? 'dark' : 'light'),
+      }}
+    >
+      {/* Añadir el RouterProvider con el router */}
+      <RouterProvider router={router} />
+    </MyContext.Provider>
+  );
+
+  function setSchema(newSchema: 'light' | 'dark') {
+    setState((prev) => ({
+      ...prev,
+      schema: newSchema,
+    }));
+
+    localStorage.setItem('schema', newSchema);
+
+    if (newSchema === 'light') {
+      document.body.classList.remove('cd-dark');
+    } else {
+      document.body.classList.add('cd-dark');
+    }
+  }
+}
+
+createRoot(document.getElementById('root')!).render(
+  <StrictMode>
+    <QueryClientProvider client={queryClient}>
+      <App />
+    </QueryClientProvider>
+  </StrictMode>
+);
 ```
 5. En el componente Layout, crear el botón para cambiar el tema de la aplicación.
 6. Actualizar ciertos estilos según el tema seleccionado.
+7. Actualizar el config de tailwind.
+```ts
+/** @type {import('tailwindcss').Config} */
+export default {
+  darkMode: 'selector', // <--- Añadir esta línea
+  content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
+  // Usar prefijos en las clases puede ser útil para evitar conflictos con otras librerías o para encontrar más fácilmente las clases de Tailwind
+  prefix: 'cd-',
+  theme: {
+    extend: {},
+  },
+  plugins: [],
+};
+
+```
 
 ## Implementación Zustand
 
@@ -141,41 +194,33 @@ src/
 
 Slice de `user.ts`:
 ```typescript
-import { UserLogin } from '@customTypes/context';
+import { UserLoginType } from '@customTypes/store';
 
-export type UserState = {
-  name: string;
-  city: string;
-  email: string;
-  role: string;
+export type UserActionsType = {
+  clearUser: () => void;
+  setUser: (user: UserLoginType) => void;
+  setField: (
+    key: keyof UserLoginType,
+    value: string | 'admin' | 'user'
+  ) => void;
 };
 
-export type StoreActions = {
-  clear: () => void;
-  setUser: (user: UserLogin) => void;
-  setField: (field: keyof UserLogin, value: string) => void;
-};
-
-export const INITIAL_STATE: UserState = {
+export const initialUserState: UserLoginType = {
   name: '',
-  city: '',
-  email: '',
-  role: '',
+  role: 'user',
 };
 ```
 
-Slice de `theme.ts`:
+Slice de `schema.ts`:
 ```typescript
-export type ThemeStore = {
-  schema: 'light' | 'dark';
-};
+import { ThemeType } from '@customTypes/store';
 
-export type StoreActions = {
+export type ThemeActionsType = {
   toggleTheme: () => void;
-  setTheme: (schema: ThemeStore['schema']) => void;
+  clearTheme: () => void;
 };
 
-export const INITIAL_STATE: ThemeStore = {
+export const initialSchemaState: ThemeType = {
   schema: 'light',
 };
 ```
@@ -184,36 +229,46 @@ export const INITIAL_STATE: ThemeStore = {
 ```typescript
 import { create } from 'zustand';
 
-import {
-  UserState,
-  StoreActions,
-  INITIAL_STATE as INITIAL_USER,
-} from '@store/slides/user';
-import {
-  ThemeStore,
-  StoreActions as ThemeActions,
-  INITIAL_STATE as INITIAL_THEME,
-} from '@store/slides/theme';
+import { ThemeType, UserLoginType } from '@customTypes/store';
 
-const useStore = create<StoreActions & ThemeActions & UserState & ThemeStore>(
-  (set) => ({
-    ...INITIAL_USER,
-    ...INITIAL_THEME,
-    //actions user
-    clear: () => set(INITIAL_USER),
-    setUser: (user) => set(user),
-    setField: (field, value) => set((state) => ({ ...state, [field]: value })),
-    //actions theme
-    toggleTheme: () =>
-      set((state) => ({ schema: state.schema === 'light' ? 'dark' : 'light' })),
-    setTheme: (schema) => set({ schema }),
-  })
-);
+import { UserActionsType, initialUserState } from '@store/slices/user';
+import { ThemeActionsType, initialSchemaState } from '@store/slices/schema';
+
+type StoreType = UserLoginType & UserActionsType & ThemeType & ThemeActionsType;
+
+const useStore = create<StoreType>((set) => ({
+  ...initialUserState,
+  ...initialSchemaState,
+  //actions user
+  setUser: (user) => set((state) => ({ ...state, ...user })),
+  setField: (field, value) => set((state) => ({ ...state, [field]: value })),
+  //actions theme
+  clearTheme: () => set((state) => ({ ...state, schema: 'light' })),
+  clearUser: () => set((state) => ({ ...state, ...initialUserState })),
+  toggleTheme: () =>
+    set((state) => {
+      const newSchema = state.schema === 'light' ? 'dark' : 'light';
+
+      localStorage.setItem('schema', newSchema);
+
+      if (newSchema === 'light') {
+        document.body.classList.remove('cd-dark');
+      } else {
+        document.body.classList.add('cd-dark');
+      }
+
+      return {
+        ...state,
+        schema: newSchema,
+      };
+    }),
+}));
 
 export default useStore;
-
 ```
-5. Actualizar la app para usar el hook personalizado `useStore` en lugar de `useDispatch` (devuelve la función dispatch para actualizar) y `useSelector` (devuelve el valor según el selector que se le pase). Recordemos que ahora podemos acceder a los valores y funciones del store de manera directa.
+5. Actualizar el `main.tsx` debido a que ahora no necesitamos ningun provider.
+6. Actualizar la app para usar el hook personalizado `useStore` . Recordemos que podemos acceder a los valores y funciones del store de manera directa.
+7. Añadir el useEffect para cargar el tema guardado en el localStorage desde el componente Layout.
 
 
 ## Implementación Redux
