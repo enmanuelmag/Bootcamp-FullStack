@@ -165,6 +165,28 @@ class LocalStorageDS implements DataDS {
       throw new Error('Error saving user');
     }
   }
+
+  async updateUser(index: number, user: UserCreateType) {
+    try {
+      await sleep();
+
+      const users = this.getUsers();
+
+      const newUsers: UserType[] = users;
+
+      const userToUpdate = newUsers[index];
+
+      newUsers[index] = {
+        ...userToUpdate,
+        ...user,
+      };
+
+      localStorage.setItem(USER_KEY, JSON.stringify(newUsers));
+    } catch (error) {
+      console.error(error);
+      throw new Error('Error al actualizar el usuario');
+    }
+  }
 }
 
 export default LocalStorageDS;
@@ -185,6 +207,10 @@ class DataRepoImpl {
   async saveUser(user: UserCreate): Promise<void> {
     return await this.data.saveUser(user);
   }
+
+  async updateUser(index: number, user: UserCreateType): Promise<void> {
+    return this.data.updateUser(index, user);
+  }
 }
 
 export default DataRepoImpl;
@@ -200,6 +226,8 @@ Este diseño nos permite tener una separación de responsabilidades y una fácil
 
 Crear un botón en el componente “UserProfile” que se llame “Eliminar” de color rojo. Este deberá invocar una nueva función en nuestro DataSource “deleteUser” que recibe el index del usuario y lo elimina de la base de datos.
 
+
+## Extra (React Query)
 Pasos:
 1. Instalar la librería `@tanstack/react-query` que nos permitirá hacer consultas a nuestro DataSource de manera más sencilla.
 ```bash
@@ -208,4 +236,4 @@ npm install @tanstack/react-query
 2. Usar el Provider QueryClientProvider en nuestro archivo `src/main.tsx` para envolver toda la aplicación.
 3. Crear las constantes para los keys de cada query en el archivo `src/constants/query.ts`.
 4. Crear funciones utils para detectar cuando este cargando una query y cuando haya un error en el archivo `src/utils/query.ts`.
-5. Hacer uso de la función useQuery/useMutation en nuestro componente UserProfile para obtener los datos del usuario.
+5. Hacer uso de la función useQuery/useMutation en nuestro componente `UserProfile` para obtener los datos del usuario.
